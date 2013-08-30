@@ -185,7 +185,7 @@ public class KMXProxy {
                 root.getString("contentStoreUri"));
         final UriRef contentStoreViewUri = new UriRef(
                 root.getString("contentStoreViewUri"));
-        final Integer items = root.has("items") ? root.getInt("items") : 10;
+        final Integer items = root.has("items") ? root.getInt("items") : 500;
         final Integer offset = root.has("offset") ? root.getInt("offset") : 0;
         final Integer maxFacets = root.has("maxFacets") ? root.getInt("maxFacets") : 10;
         final List<String> searchs = new ArrayList<String>();
