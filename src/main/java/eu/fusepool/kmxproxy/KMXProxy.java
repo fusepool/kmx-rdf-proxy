@@ -421,6 +421,8 @@ public class KMXProxy {
     private Map<String, String> describeContent(GraphNode contentNode) {
         Map<String, String> item = new HashMap<String, String>();
         String docName = contentNode.getNode().toString();
+        // strip < and >
+        docName = docName.substring(1, docName.length()-1);
         String docText = contentNode.getLiterals(SIOC.content).next().toString();
         item.put("DOCNAME", docName);
         item.put("doc_text", docText);
