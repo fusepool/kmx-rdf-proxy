@@ -9,7 +9,7 @@ import org.apache.stanbol.commons.web.base.NavigationLink;
 public class MenuItem extends NavigationLink {
     
     public MenuItem() {
-        super("kmxproxy/", 
+        super("kmxrdfproxy/", 
                 "KMX RDF Proxy", 
                 "Exposes external KMX service", 300);
     }

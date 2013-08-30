@@ -11,20 +11,19 @@
 
   <body>
     <h1>Example usage:</h1>
-    
-    <form method="POST" action="<@ldpath path="."/>" accept-charset="utf-8"  
-          enctype="multipart/form-data">
-        <label for="file">File to enhance</label><input type="file" name="file" 
-                size="90"/><br/>
-        <label for="chain">Chain to use</label><input type="text" name="chain" 
-                size="30"/><br/>
-        <input type="submit" value="Get enhancements" />
-        <input type="submit" onclick="this.form.action = '<@ldpath path="."/>?header_Accept=application%2Frdf%2Bxml'" 
-              value="Get enhancement as rdf/xml" />
-        <input type="submit" onclick="this.form.action = '<@ldpath path="."/>?header_Accept=text%2Fturtle'"
-              value="Get enhancement as turtle" />
-    </form>
-    <#include "/html/includes/footer.ftl">
+
+    <p>This is a work in progress and subject to change.</p>
+    <p>Send an HTTP POST request to /kmxrdfproxy/ranking with the following JSON object as body:</p>
+    <p>Also make sure the Accept header contains application/rdf+xml</p>
+    <p>
+
+{<br>
+"contentStoreUri": "http://localhost:8080",<br>
+"contentStoreViewUri": "http://localhost:8080",<br>
+"searchs": ["searchterm"],<br>
+"labels": { "doc uri": "Positive", "doc uri2", "Negative},<br>
+}<br>
+    </p>
   </body>
 </html>
 
