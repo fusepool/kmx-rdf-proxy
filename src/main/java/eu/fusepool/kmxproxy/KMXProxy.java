@@ -173,7 +173,7 @@ public class KMXProxy {
     @POST
     @Path("ranking_auth")
     public RdfViewable ranking(@Context final UriInfo uriInfo, final String data)
-            throws JSONException, IOException {
+            throws JSONException, IOException, Exception {
         TrailingSlash.enforcePresent(uriInfo);
         log.info("ranking: " + data);
         final String resourcePath = uriInfo.getAbsolutePath().toString();
@@ -238,7 +238,11 @@ public class KMXProxy {
         Integer dataset_id = (Integer) response.get("dataset_id");
 
         // get results
-        GraphNode contentList = contentStoreView.getObjectNodes(ECS.contents).next();
+        Iterator<GraphNode> nodesIt = contentStoreView.getObjectNodes(ECS.contents);
+        if (!nodesIt.hasNext()) {
+            throw new Exception("Search on ECS yielded no results.");
+        }
+        GraphNode contentList = nodesIt.next();
         while (!contentList.getNode().equals(RDF.nil)) {
             Map<String, String> doc = describeContent(contentList.getObjectNodes(RDF.first).next());
             // add the doc to the dataset
