@@ -267,9 +267,7 @@ public class KMXProxy {
             id2docname.put(id, docname);
         }
         HashMap<String, Integer> docname2id = new HashMap<String, Integer>();
-        Iterator it = id2docname.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
+        for (Map.Entry pair : id2docname.entrySet()) {
             docname2id.put((String)pair.getValue(), (Integer)pair.getKey());
             System.out.println((String)pair.getValue());
         }
@@ -401,10 +399,7 @@ public class KMXProxy {
 //            System.out.println(docName + ":" + posProb);
             rankedDocnames.put(posProb, docName);
         }
-        
-        Iterator it2 = rankedDocnames.entrySet().iterator();
-        while (it2.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it2.next();
+        for (Map.Entry pairs : rankedDocnames.entrySet()) {
             System.out.println(pairs.getKey() + ": " + pairs.getValue());
         }
         
