@@ -217,6 +217,8 @@ public class KMXProxy {
                 item.put("Label", label);
                 labels.add(item);
             }
+        } else {
+            throw new Exception("Can't create classifier without training labels. Please sepecify labels.");
         }
         
         // redo search on ECS
@@ -273,83 +275,16 @@ public class KMXProxy {
         }
             
         String stoplist = kmxClient.createStoplist().getString("stoplist_name");
-        ArrayList<String> words = new ArrayList<String>();
-        words.add("a");
-        words.add("about");
-        words.add("after");
-        words.add("all");
-        words.add("also");
-        words.add("an");
-        words.add("and");
-        words.add("any");
-        words.add("are");
-        words.add("as");
-        words.add("at");
-        words.add("be");
-        words.add("because");
-        words.add("been");
-        words.add("but");
-        words.add("by");
-        words.add("can");
-        words.add("co");
-        words.add("corp");
-        words.add("could");
-        words.add("for");
-        words.add("from");
-        words.add("had");
-        words.add("has");
-        words.add("have");
-        words.add("he");
-        words.add("her");
-        words.add("his");
-        words.add("if");
-        words.add("in");
-        words.add("inc");
-        words.add("into");
-        words.add("is");
-        words.add("it");
-        words.add("its");
-        words.add("last");
-        words.add("more");
-        words.add("most");
-        words.add("mr");
-        words.add("mrs");
-        words.add("ms");
-        words.add("mz");
-        words.add("no");
-        words.add("not");
-        words.add("of");
-        words.add("on");
-        words.add("one");
-        words.add("only");
-        words.add("or");
-        words.add("other");
-        words.add("out");
-        words.add("over");
-        words.add("s");
-        words.add("says");
-        words.add("she");
-        words.add("so");
-        words.add("some");
-        words.add("such");
-        words.add("than");
-        words.add("that");
-        words.add("the");
-        words.add("their");
-        words.add("there");
-        words.add("they");
-        words.add("this");
-        words.add("to");
-        words.add("up");
-        words.add("was");
-        words.add("we");
-        words.add("were");
-        words.add("when");
-        words.add("which");
-        words.add("who");
-        words.add("will");
-        words.add("with");
-        words.add("would");
+        String[] stopWords = {"a", "about", "after", "all", "also", "an", "and",
+            "any", "are", "as", "at", "be", "because", "been", "but", "by",
+            "can", "co", "corp", "could", "for", "from", "had", "has", "have",
+            "he", "her", "his", "if", "in", "inc", "into", "is", "it", "its",
+            "last", "more", "most", "mr", "mrs", "ms", "mz", "no", "not", "of",
+            "on", "one", "only", "or", "other", "out", "over", "s", "says",
+            "she", "so", "some", "such", "than", "that", "the", "their",
+            "there", "they", "this", "to", "up", "was", "we", "were", "when",
+            "which", "who", "will", "with", "would"};
+        List<String> words = Arrays.asList(stopWords);
 
         kmxClient.AddWordsToStoplist(stoplist, words);
         
