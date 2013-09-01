@@ -154,12 +154,12 @@ public class KMXProxy {
      *  "contentStoreViewUri": "http://example.com/",
      *  "subjects": ["http://example.com/"],
      *  "searchs": ["a", "b"],
-     *  "items": 1000,
+     *  "items": 500,
      *  "offset": 0,
      *  "maxFacets": 1,
      *  "labels": { "doc uri": "Positive", "doc uri2": "Negative"},
      * }
-     * When fields are not provided, the shown value is the default. Execpt for
+     * When fields are not provided, the shown value is the default. Except for
      * the labels, which has an empty list as default.
      * 
      * contentStoreUri The IRI of the content store to use
@@ -334,23 +334,47 @@ public class KMXProxy {
 //            System.out.println(docName + ":" + posProb);
             rankedDocnames.put(posProb, docName);
         }
-        for (Map.Entry pairs : rankedDocnames.entrySet()) {
-            System.out.println(pairs.getKey() + ": " + pairs.getValue());
-        }
         
-        // TODO: reorder the result graph and remove the sioc content
-        // either sort this list:
-        //contentStoreView.getObjectNodes(ECS.contents).next().asList();
+        // either sort this list (list of all content uris):
+//        List<Resource> contentNodesList = contentStoreView.getObjectNodes(ECS.contents).next().asList();
         // OR make a new one
-//        BNode myNewListResource = new BNode();
-//        contentStoreView.addProperty(ECS.contents, myNewListResource);
-//        List<Resource> rdfList = new RdfList(myNewListResource);
-//        rdfList.add(theFirstContentGraphNode.getNode());
-//        rdfList.add(theSecondContentGraphNode.getNode());
+        BNode myNewListResource = new BNode();
+        Iterator<GraphNode> contentNodesIt = contentStoreView.getObjectNodes(ECS.contents);
+        GraphNode contentList2 = contentNodesIt.next();
+        contentStoreView.deleteProperties(ECS.contents);
+        contentStoreView.addProperty(ECS.contents, myNewListResource);
+        List<Resource> rdfList = new RdfList(myNewListResource, contentStoreView.getGraph());
+        for (Map.Entry pairs : rankedDocnames.entrySet()) {
+            // key hold probability score
+            // value is the docname, which is the url without < > surrounding
+//            System.out.println(pairs.getKey() + ": " + pairs.getValue());
+            GraphNode node = findGraphNode((String)pairs.getValue(), contentList2);
+//            System.out.println(node);
+            // strip its sioc content
+            node.deleteProperties(SIOC.content);
+            rdfList.add(node.getNode());
+        }
+
 
         return new RdfViewable("ContentStoreView", contentStoreView, ContentStoreImpl.class);
     }
-    
+
+    private GraphNode findGraphNode(String docName, GraphNode contentList) throws Exception {
+        //GraphNode contentList = nodesIt.next();
+        while (!contentList.getNode().equals(RDF.nil)) {
+//            Map<String, String> doc = describeContent(contentList.getObjectNodes(RDF.first).next());
+            GraphNode contentNode = contentList.getObjectNodes(RDF.first).next();
+            String nodeName = contentNode.getNode().toString();
+            // strip < and >
+            nodeName = nodeName.substring(1, nodeName.length() - 1);
+            if (nodeName.equals(docName)) {
+                return contentNode;
+            }
+            
+            contentList = contentList.getObjectNodes(RDF.rest).next();
+        }
+        throw new Exception("Node not found.");
+    }
     
     private Map<String, String> describeContent(GraphNode contentNode) {
         Map<String, String> item = new HashMap<String, String>();
