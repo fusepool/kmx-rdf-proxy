@@ -178,7 +178,14 @@ public class KMXProxy {
         log.info("ranking: " + data);
         final String resourcePath = uriInfo.getAbsolutePath().toString();
         final UriRef contentUri = new UriRef(resourcePath);
-        JSONObject root = new JSONObject(data);
+        JSONObject root;
+        try {
+            root = new JSONObject(data);
+        } catch (org.codehaus.jettison.json.JSONException ex) {
+            String msg = ex.getMessage();
+            msg += "\n post data received is: " + data;
+            throw new Exception(msg);
+        }
         
         // get original search parameters from json object
         final UriRef contentStoreUri = new UriRef(
