@@ -334,7 +334,6 @@ public class KMXProxy {
         String probKey = determineProbKey(response);
         
         while (rkeys.hasNext()) {
-            // TODO: make sure HypCat1 corrosponds to Positive
             String docId = (String) rkeys.next();
             JSONObject jsonProb = response.getJSONObject(docId);
             Integer docIdInt = Integer.parseInt(docId);
