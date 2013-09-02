@@ -192,7 +192,7 @@ public class KMXProxy {
                 root.getString("contentStoreUri"));
         final UriRef contentStoreViewUri = new UriRef(
                 root.getString("contentStoreViewUri"));
-        final Integer items = root.has("items") ? root.getInt("items") : 500;
+        final Integer items = root.has("items") ? root.getInt("items") : 100;
         final Integer offset = root.has("offset") ? root.getInt("offset") : 0;
         final Integer maxFacets = root.has("maxFacets") ? root.getInt("maxFacets") : 10;
         final List<String> searchs = new ArrayList<String>();
@@ -331,13 +331,15 @@ public class KMXProxy {
         // tree map is a rb-tree
         SortedMap<Double, String> rankedDocnames = new TreeMap<Double, String>(Collections.reverseOrder());
         
+        String probKey = determineProbKey(response);
+        
         while (rkeys.hasNext()) {
             // TODO: make sure HypCat1 corrosponds to Positive
             String docId = (String) rkeys.next();
             JSONObject jsonProb = response.getJSONObject(docId);
             Integer docIdInt = Integer.parseInt(docId);
             String docName = id2docname.get(docIdInt);
-            Double posProb = jsonProb.getDouble("Prob1");
+            Double posProb = jsonProb.getDouble(probKey);
 //            System.out.println(docName + ":" + posProb);
             rankedDocnames.put(posProb, docName);
         }
@@ -366,6 +368,25 @@ public class KMXProxy {
         return new RdfViewable("ContentStoreView", contentStoreView, ContentStoreImpl.class);
     }
 
+    private String determineProbKey(JSONObject jsonResponse) throws JSONException, Exception {
+        // inner in this form: 
+        // {"Prob2":61.4904,"HypCat1":"Positive","HypCat2":"Negative","Prob1":38.5096}
+        Iterator<?> docIds = jsonResponse.keys();
+        String docId = (String)docIds.next();
+        JSONObject inner = jsonResponse.getJSONObject(docId);
+        // find positive hypcat
+        Iterator<?> keys = inner.keys();
+        while (keys.hasNext()) {
+            String key = (String)keys.next();
+            if (key.startsWith("HypCat") && "Positive".equals(inner.getString(key))) {
+                // get number from hypcat and return Prob%d
+                String intStr = key.substring(6);
+                return "Prob" + intStr;
+            }
+        }
+        throw new Exception("KMX response object error.");
+    }
+    
     private GraphNode findGraphNode(String docName, GraphNode contentList) throws Exception {
         //GraphNode contentList = nodesIt.next();
         while (!contentList.getNode().equals(RDF.nil)) {
