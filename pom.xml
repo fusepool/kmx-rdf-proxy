@@ -4,11 +4,11 @@
   
   <groupId>eu.fusepool</groupId>
   <artifactId>kmx-rdf-proxy</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   
   <packaging>bundle</packaging>
 
-  <name>KMX RDF Proxy</name>
+  <name>Fusepool - KMX RDF Proxy</name>
   <description>Allows posting files and shows the computed enhancements.</description>
 
   <properties>
