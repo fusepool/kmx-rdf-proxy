@@ -65,6 +65,8 @@ import org.apache.clerezza.rdf.core.Literal;
 import org.apache.clerezza.rdf.core.Resource;
 import org.apache.clerezza.rdf.core.Triple;
 import org.apache.clerezza.rdf.core.TripleCollection;
+import org.apache.clerezza.rdf.core.TypedLiteral;
+import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
 import org.apache.clerezza.rdf.ontologies.SIOC;
 import org.apache.clerezza.rdf.utils.RdfList;
 import org.codehaus.jettison.json.JSONArray;
@@ -377,6 +379,11 @@ public class KMXProxy {
 //            System.out.println(node);
             // strip its sioc content
             node.deleteProperties(SIOC.content);
+            // add classification score
+            node.addProperty(
+                new UriRef("http://www.w3.org/2001/XMLSchema#double"),
+                new TypedLiteralImpl(pairs.getKey().toString(),
+                    new UriRef("http://www.w3.org/2001/XMLSchema#double")));
             rdfList.add(node.getNode());
         }
 
