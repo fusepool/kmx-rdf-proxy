@@ -130,6 +130,19 @@ public class KMXProxy {
     }
 
     /**
+     * Temporary: HTTP GET variant of the ranking method used during development
+     * 
+     * This function causes a potentially very large amount of processing. It
+     * will also change state on the kmx service and this function is therefor
+     * not suitable for a GET.
+     */
+    @GET
+    @Path("ranking_get")
+    public RdfViewable rankingPriviledgedGet(@Context final UriInfo uriInfo, final String data) throws Exception {
+        return rankingPriviledged(uriInfo, data);
+    }    
+    
+    /**
      * Returns a ranked (ordered) result graph 
      * No query params, a JSON object is expected in the body
      */
