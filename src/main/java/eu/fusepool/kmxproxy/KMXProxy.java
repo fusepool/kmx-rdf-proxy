@@ -48,6 +48,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -228,11 +229,14 @@ public class KMXProxy {
             throw new Exception("Can't create classifier without training labels. Please sepecify labels.");
         }
         
+        Collection<UriRef> types = Collections.EMPTY_LIST;
+        
         // redo search on ECS
         GraphNode contentStoreView = ecs.getContentStoreView(
                 contentStoreUri,
                 contentStoreViewUri,
                 subjects,
+                types,
                 searchs,
                 items,
                 offset,
