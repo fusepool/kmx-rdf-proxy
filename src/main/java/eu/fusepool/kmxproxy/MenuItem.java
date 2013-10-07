@@ -10,8 +10,8 @@ public class MenuItem extends NavigationLink {
     
     public MenuItem() {
         super("kmxrdfproxy/", 
-                "KMX RDF Proxy", 
-                "Exposes external KMX service", 300);
+                "/ranking", 
+                "Exposes external ranking service", 300);
     }
     
 }
