@@ -60,6 +60,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
+import javax.ws.rs.QueryParam;
 import org.apache.clerezza.rdf.core.BNode;
 import org.apache.clerezza.rdf.core.Literal;
 import org.apache.clerezza.rdf.core.Resource;
@@ -140,8 +141,13 @@ public class KMXProxy {
      */
     @GET
     @Path("ranking_get")
-    public RdfViewable rankingPriviledgedGet(@Context final UriInfo uriInfo, final String data) throws Exception {
-        return rankingPriviledged(uriInfo, data);
+    public RdfViewable rankingPriviledgedGet(@Context
+            final UriInfo uriInfo,
+            @QueryParam("json") final String json) throws Exception {
+        if (json == null || json.length() == 0) {
+            throw new Exception("Please provide the json query parameter");
+        }
+        return rankingPriviledged(uriInfo, json);
     }    
     
     /**
@@ -199,7 +205,7 @@ public class KMXProxy {
             root = new JSONObject(data);
         } catch (org.codehaus.jettison.json.JSONException ex) {
             String msg = ex.getMessage();
-            msg += "\n post data received is: " + data;
+            msg += "\n\n" + data.length() + " characters of body data received: " + data;
             throw new Exception(msg);
         }
         
