@@ -9,13 +9,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import org.apache.clerezza.jaxrs.utils.TrailingSlash;
-import org.apache.clerezza.jaxrs.utils.form.FormFile;
-import org.apache.clerezza.jaxrs.utils.form.MultiPartBody;
 import org.apache.clerezza.rdf.core.MGraph;
 import org.apache.clerezza.rdf.core.UriRef;
-import org.apache.clerezza.rdf.core.impl.PlainLiteralImpl;
 import org.apache.clerezza.rdf.ontologies.RDF;
-import org.apache.clerezza.rdf.ontologies.RDFS;
 import org.apache.clerezza.rdf.utils.GraphNode;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -25,14 +21,6 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.stanbol.commons.indexedgraph.IndexedMGraph;
 import org.apache.stanbol.commons.web.viewable.RdfViewable;
-import org.apache.stanbol.enhancer.servicesapi.Chain;
-import org.apache.stanbol.enhancer.servicesapi.ChainManager;
-import org.apache.stanbol.enhancer.servicesapi.ContentItem;
-import org.apache.stanbol.enhancer.servicesapi.ContentItemFactory;
-import org.apache.stanbol.enhancer.servicesapi.ContentSource;
-import org.apache.stanbol.enhancer.servicesapi.EnhancementException;
-import org.apache.stanbol.enhancer.servicesapi.EnhancementJobManager;
-import org.apache.stanbol.enhancer.servicesapi.impl.ByteArraySource;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.osgi.service.component.ComponentContext;
@@ -41,12 +29,9 @@ import org.slf4j.LoggerFactory;
 import eu.fusepool.ecs.core.ContentStore;
 import eu.fusepool.ecs.core.ContentStoreImpl;
 import eu.fusepool.ecs.ontologies.ECS;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,13 +45,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
-import javax.ws.rs.QueryParam;
 import org.apache.clerezza.rdf.core.BNode;
-import org.apache.clerezza.rdf.core.Literal;
 import org.apache.clerezza.rdf.core.Resource;
-import org.apache.clerezza.rdf.core.Triple;
-import org.apache.clerezza.rdf.core.TripleCollection;
-import org.apache.clerezza.rdf.core.TypedLiteral;
 import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
 import org.apache.clerezza.rdf.ontologies.SIOC;
 import org.apache.clerezza.rdf.utils.RdfList;
@@ -81,9 +61,9 @@ import scala.actors.threadpool.Arrays;
 /**
  * Manages communication with a KMX service and transformation of responses
  */
-@Component
-@Service(Object.class)
-@Property(name="javax.ws.rs", boolValue=true)
+@Component(immediate=true)
+@Service({Object.class, KMXProxy.class})
+@Property(name = "javax.ws.rs", boolValue = true)
 @Path("kmxrdfproxy")
 public class KMXProxy {
 //    public static final String DEFAULT_WEBSERVICE_URL = "http://192.168.1.87:9090/kmx/api/v1/";
@@ -102,6 +82,9 @@ public class KMXProxy {
         
     @Reference
     private ContentStore ecs;
+    
+//    @Reference
+//    private ContentItemFactory contentItemFactory;
     
     private KMXClient kmxClient;
     
@@ -366,8 +349,7 @@ public class KMXProxy {
             rdfList.add(node.getNode());
         }
 
-
-        return new RdfViewable("ContentStoreView", contentStoreView, ContentStoreImpl.class);
+        return new RdfViewable("KmxRdfProxy", contentStoreView, KMXProxy.class);
     }
 
     private String determineProbKey(JSONObject jsonResponse) throws JSONException, Exception {
