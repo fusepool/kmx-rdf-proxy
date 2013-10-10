@@ -27,12 +27,12 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.fusepool.ecs.core.ContentStore;
-import eu.fusepool.ecs.core.ContentStoreImpl;
 import eu.fusepool.ecs.ontologies.ECS;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -51,7 +51,6 @@ import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
 import org.apache.clerezza.rdf.ontologies.SIOC;
 import org.apache.clerezza.rdf.utils.RdfList;
 import org.codehaus.jettison.json.JSONArray;
-import scala.actors.threadpool.Arrays;
 
 /*
  * TODO use the OSGi properties for configuration
