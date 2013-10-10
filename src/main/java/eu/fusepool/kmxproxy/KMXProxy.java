@@ -101,15 +101,6 @@ public class KMXProxy {
     private static final Logger log = LoggerFactory.getLogger(KMXProxy.class);
         
     @Reference
-    private ContentItemFactory contentItemFactory;
-    
-    @Reference
-    private EnhancementJobManager enhancementJobManager;
-    
-    @Reference
-    private ChainManager chainManager;
-    
-    @Reference
     private ContentStore ecs;
     
     private KMXClient kmxClient;
