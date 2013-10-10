@@ -131,24 +131,6 @@ public class KMXProxy {
     protected void deactivate(ComponentContext context) {
         log.info("The kmx proxy service is being deactivated");
     }
-
-    /**
-     * Temporary: HTTP GET variant of the ranking method used during development
-     * 
-     * This function causes a potentially very large amount of processing. It
-     * will also change state on the kmx service and this function is therefor
-     * not suitable for a GET.
-     */
-    @GET
-    @Path("ranking_get")
-    public RdfViewable rankingPriviledgedGet(@Context
-            final UriInfo uriInfo,
-            @QueryParam("json") final String json) throws Exception {
-        if (json == null || json.length() == 0) {
-            throw new Exception("Please provide the json query parameter");
-        }
-        return rankingPriviledged(uriInfo, json);
-    }    
     
     /**
      * Returns a ranked (ordered) result graph 
@@ -546,9 +528,9 @@ public class KMXProxy {
     @GET
     public RdfViewable serviceEntry(@Context final UriInfo uriInfo, 
             @HeaderParam("user-agent") String userAgent) throws Exception {
-        System.out.println("BBBBBBBBBBBBBBBBBBBBBBBb");
-        System.out.println(uriInfo.getPath());
-        System.out.println(userAgent);
+//        System.out.println("BBBBBBBBBBBBBBBBBBBBBBBb");
+//        System.out.println(uriInfo.getPath());
+//        System.out.println(userAgent);
         //this makes sure we are nt invoked with a trailing slash which would affect
         //relative resolution of links (e.g. css)
         TrailingSlash.enforcePresent(uriInfo);
@@ -565,42 +547,6 @@ public class KMXProxy {
         //node.addProperty(RDF.type, Ontology.MultiEnhancer);
         //node.addProperty(RDFS.comment, new PlainLiteralImpl("A Multi Enhancer service"));
         //What we return is the GraphNode we created with a template path
-        return new RdfViewable("MultiEnhancer", node, KMXProxy.class);
-    }
-    
-    /**
-     * A method to experiment with the full content from ECS
-     */
-    @GET
-    @Path("content")
-    public RdfViewable Experiment(@Context final UriInfo uriInfo) {
-        List<String> searchs = new ArrayList<String>();
-        List<UriRef> subjects = new ArrayList<UriRef>();
-        subjects.add(new UriRef(""));
-        searchs.add("");
-        GraphNode result = ecs.getContentStoreView(
-            new UriRef("http://beta.fusepool.com/ecs/"),
-            new UriRef("http://beta.fusepool.com/ecs/?search=" + searchs.get(0)),
-            new ArrayList<UriRef>(),
-            searchs,
-            10,
-            0,
-            10,
-            true);
-
-        log.info("nr results: " + result.asList().size());
-        
-        StringBuilder sb = new StringBuilder();
-        Iterator<Resource> valuesIter = result.getObjects(SIOC.content);
-        while (valuesIter.hasNext()) {
-            final Resource value = valuesIter.next();
-            sb.append(value.toString());
-            log.info("res " + value.toString());
-            System.err.println(value.toString());
-        }
-        
-        //return sb.toString();
-        result.deleteProperties(SIOC.content);
-        return new RdfViewable("ContentStoreView", result, ContentStoreImpl.class);
+        return new RdfViewable("KmxRdfProxy", node, KMXProxy.class);
     }
 }
