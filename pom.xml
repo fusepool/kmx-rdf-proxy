@@ -28,7 +28,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-scr-plugin</artifactId>
-        <version>1.9.0</version>
         <executions>
           <execution>
             <id>generate-scr-scrdescriptor</id>
@@ -89,11 +88,6 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
       <version>4.3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.scr.annotations</artifactId>
-      <version>1.7.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.clerezza</groupId>
