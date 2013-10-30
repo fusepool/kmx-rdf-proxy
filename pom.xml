@@ -28,27 +28,10 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-scr-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>generate-scr-scrdescriptor</id>
-            <goals>
-              <goal>scr</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-            <instructions>
-                <Install-Path>config</Install-Path>
-                <Export-Package>
-                    eu.fusepool.kmxproxy;version=${project.version}
-                </Export-Package>
-            </instructions>
-        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -94,15 +77,25 @@
       <artifactId>jaxrs.utils</artifactId>
       <version>0.7</version>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>eu.fusepool</groupId>
       <artifactId>ecs.core</artifactId>
       <version>1.0-SNAPSHOT</version>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>com.treparel</groupId>
       <artifactId>KMXClient</artifactId>
       <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ecs.core</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ecs.ontologies</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
