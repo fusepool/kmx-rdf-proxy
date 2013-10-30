@@ -205,7 +205,15 @@ public class KMXProxy {
             throw new Exception("Can't create classifier without training labels. Please sepecify labels.");
         }
         
-        Collection<UriRef> types = Collections.EMPTY_LIST;
+        final List<UriRef> types = new ArrayList<UriRef>();
+        if (root.has("types")) {
+            final JSONArray jsonTypes = root.getJSONArray("types");
+            for (int i = 0; i < jsonTypes.length(); i++) {
+                types.add(new UriRef(jsonTypes.getString(i)));
+            }
+        }
+        
+        log.info("getting search results from ECS");
         
         // redo search on ECS
         GraphNode contentStoreView = ecs.getContentStoreView(
@@ -218,6 +226,7 @@ public class KMXProxy {
                 offset,
                 maxFacets,
                 true);
+        log.info("got search results from ECS");
 
         Set<String> colNames = new HashSet<String>();
         colNames.add("DOCNAME");
@@ -238,6 +247,7 @@ public class KMXProxy {
             kmxClient.addItemToDataset(dataset_id, doc);
             contentList = contentList.getObjectNodes(RDF.rest).next();
         }
+        log.info("Sending docs to KMX");
 
         response = kmxClient.createWorkspace();
         Integer workspace_id = (Integer) response.get("object_id");
@@ -287,7 +297,7 @@ public class KMXProxy {
                 System.out.println(id.toString() + " " + label);
             }
         }
-        
+
         kmxClient.labelWorkspaceItems(workspace_id, labelMap);
                 
         // make model
@@ -295,7 +305,7 @@ public class KMXProxy {
         settingsMap.put("STOPLIST", stoplist);
         settingsMap.put("MAX_FEATURES", "750");
         Integer model_id = kmxClient.createSVMModel(workspace_id, settingsMap).getInt("object_id");
-        
+
         // apply model
         response = kmxClient.applySVMModelToWorkspace(model_id, workspace_id);
         // example output: 
