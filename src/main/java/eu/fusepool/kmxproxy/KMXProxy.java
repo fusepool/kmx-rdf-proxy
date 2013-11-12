@@ -319,7 +319,8 @@ public class KMXProxy {
         Iterator<?> rkeys = response.keys(); // doc_ids
         
         // tree map is a rb-tree
-        SortedMap<Double, String> rankedDocnames = new TreeMap<Double, String>(Collections.reverseOrder());
+        //SortedMap<Double, String> rankedDocnames = new TreeMap<Double, String>(Collections.reverseOrder());
+        SortedMap<String, Double> rankedDocnames = new TreeMap<String, Double>(Collections.reverseOrder());
         
         String probKey = determineProbKey(response);
         
@@ -330,7 +331,7 @@ public class KMXProxy {
             String docName = id2docname.get(docIdInt);
             Double posProb = jsonProb.getDouble(probKey);
 //            System.out.println(docName + ":" + posProb);
-            rankedDocnames.put(posProb, docName);
+            rankedDocnames.put(docName, posProb);
         }
         
         // either sort this list (list of all content uris):
@@ -343,18 +344,21 @@ public class KMXProxy {
         contentStoreView.addProperty(ECS.contents, myNewListResource);
         List<Resource> rdfList = new RdfList(myNewListResource, contentStoreView.getGraph());
         for (Map.Entry pairs : rankedDocnames.entrySet()) {
-            // key hold probability score
-            // value is the docname, which is the url without < > surrounding
-//            System.out.println(pairs.getKey() + ": " + pairs.getValue());
-            GraphNode node = findGraphNode((String)pairs.getValue(), contentList2);
-//            System.out.println(node);
+            // key hold docid which is the url without < > surrounding it and
+            // value is the score
+            GraphNode node = findGraphNode((String)pairs.getKey(), contentList2);
             // strip its sioc content
             node.deleteProperties(SIOC.content);
             // add classification score
-            node.addProperty(
-                new UriRef("http://www.w3.org/2001/XMLSchema#double"),
-                new TypedLiteralImpl(pairs.getKey().toString(),
-                    new UriRef("http://www.w3.org/2001/XMLSchema#double")));
+//            node.addProperty(
+//                new UriRef("http://www.w3.org/2001/XMLSchema#double"),
+//                new TypedLiteralImpl(pairs.getValue().toString(),
+//                    new UriRef("http://www.w3.org/2001/XMLSchema#double")));
+            node.addPropertyValue(
+                    new UriRef("http://www.w3.org/2001/XMLSchema#double"),
+                    pairs.getValue());
+            log.info("Adding " + pairs.getValue().toString() + " to " + node +
+                    " key: " + pairs.getKey());
             rdfList.add(node.getNode());
         }
 
