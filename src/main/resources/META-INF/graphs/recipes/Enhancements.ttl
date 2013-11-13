@@ -1,12 +1,16 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix recipe: <http://vocab.netlabs.org/recipe#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ecs: <http://fusepool.eu/ontologies/ecs#> .
 
 [] a recipe:Recipe;
-  rdfs:label "When presenting an enhanced document the property of its enhancements should be presented too";
+  rdfs:label "A recipe to present a ContentStoreView enhanced with kmx scores";
   recipe:ingredient
     [a recipe:Ingredient;
-        recipe:ingredientInverseProperty <http://fise.iks-project.eu/ontology/extracted-from>],
+        recipe:ingredientProperty ecs:subject],
     [a recipe:Ingredient;
-        recipe:ingredientProperty <http://fise.iks-project.eu/ontology/entity-reference>];
-  recipe:recipeDomain "eu/fusepool/kmxproxy/Enhancements" .
+        recipe:ingredientProperty rdf:first],
+    [a recipe:Ingredient;
+        recipe:ingredientProperty ecs:facetValue];
+  recipe:recipeDomain "eu/fusepool/kmxproxy/KmxRdfProxy" .

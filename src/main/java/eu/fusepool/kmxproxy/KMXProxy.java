@@ -151,7 +151,7 @@ public class KMXProxy {
     @Path("ranking_auth")
     public RdfViewable ranking(@Context final UriInfo uriInfo, final String data)
             throws JSONException, IOException, Exception {
-        TrailingSlash.enforcePresent(uriInfo);
+        //TrailingSlash.enforcePresent(uriInfo);
         log.info("ranking: " + data);
         final String resourcePath = uriInfo.getAbsolutePath().toString();
         final UriRef contentUri = new UriRef(resourcePath);
@@ -319,7 +319,8 @@ public class KMXProxy {
         Iterator<?> rkeys = response.keys(); // doc_ids
         
         // tree map is a rb-tree
-        SortedMap<Double, String> rankedDocnames = new TreeMap<Double, String>(Collections.reverseOrder());
+        //SortedMap<Double, String> rankedDocnames = new TreeMap<Double, String>(Collections.reverseOrder());
+        SortedMap<String, Double> rankedDocnames = new TreeMap<String, Double>(Collections.reverseOrder());
         
         String probKey = determineProbKey(response);
         
@@ -330,7 +331,7 @@ public class KMXProxy {
             String docName = id2docname.get(docIdInt);
             Double posProb = jsonProb.getDouble(probKey);
 //            System.out.println(docName + ":" + posProb);
-            rankedDocnames.put(posProb, docName);
+            rankedDocnames.put(docName, posProb);
         }
         
         // either sort this list (list of all content uris):
@@ -343,21 +344,35 @@ public class KMXProxy {
         contentStoreView.addProperty(ECS.contents, myNewListResource);
         List<Resource> rdfList = new RdfList(myNewListResource, contentStoreView.getGraph());
         for (Map.Entry pairs : rankedDocnames.entrySet()) {
-            // key hold probability score
-            // value is the docname, which is the url without < > surrounding
-//            System.out.println(pairs.getKey() + ": " + pairs.getValue());
+            // key hold docid which is the url without < > surrounding it and
+            // value is the score
             GraphNode node = findGraphNode((String)pairs.getValue(), contentList2);
-//            System.out.println(node);
             // strip its sioc content
             node.deleteProperties(SIOC.content);
             // add classification score
+//<<<<<<< Updated upstream
+////            node.addProperty(
+////                new UriRef("http://www.w3.org/2001/XMLSchema#double"),
+////                new TypedLiteralImpl(pairs.getValue().toString(),
+////                    new UriRef("http://www.w3.org/2001/XMLSchema#double")));
+//            node.addPropertyValue(
+//                    new UriRef("http://www.w3.org/2001/XMLSchema#double"),
+//                    pairs.getValue());
+//            log.info("Adding " + pairs.getValue().toString() + " to " + node +
+//                    " key: " + pairs.getKey());
+//=======
             node.addProperty(
-                new UriRef("http://www.w3.org/2001/XMLSchema#double"),
-                new TypedLiteralImpl(pairs.getKey().toString(),
+                new UriRef("http://fusepool.eu/ontology/kmx#score"),
+                new TypedLiteralImpl(pairs.getValue().toString(),
                     new UriRef("http://www.w3.org/2001/XMLSchema#double")));
+//>>>>>>> Stashed changes
             rdfList.add(node.getNode());
         }
 
+        // the render specification "KmxRdfProxy" is looked up:
+        // when requesting as text/html the KmxRdfProxy.ftl template is used
+        // when requesting rdf the recipe:recipeDomain with the name 
+        // "eu/fusepool/kmxproxy/KmxRdfProxy" is used.
         return new RdfViewable("KmxRdfProxy", contentStoreView, KMXProxy.class);
     }
 
