@@ -350,22 +350,11 @@ public class KMXProxy {
             // strip its sioc content
             node.deleteProperties(SIOC.content);
             // add classification score
-//<<<<<<< Updated upstream
-////            node.addProperty(
-////                new UriRef("http://www.w3.org/2001/XMLSchema#double"),
-////                new TypedLiteralImpl(pairs.getValue().toString(),
-////                    new UriRef("http://www.w3.org/2001/XMLSchema#double")));
-//            node.addPropertyValue(
-//                    new UriRef("http://www.w3.org/2001/XMLSchema#double"),
-//                    pairs.getValue());
-//            log.info("Adding " + pairs.getValue().toString() + " to " + node +
-//                    " key: " + pairs.getKey());
-//=======
             node.addProperty(
                 new UriRef("http://fusepool.eu/ontology/kmx#score"),
                 new TypedLiteralImpl(pairs.getValue().toString(),
                     new UriRef("http://www.w3.org/2001/XMLSchema#double")));
-//>>>>>>> Stashed changes
+
             rdfList.add(node.getNode());
         }
 

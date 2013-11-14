@@ -75,6 +75,7 @@ def main():
     header = {"Accept": "text/turtle"}
     print len(params['json'])
     req = requests.post("http://"+HOST+"/kmxrdfproxy/ranking",
+    req = requests.post("http://"+HOST+"/kmxrdfproxy/ranking/",
                         data=json.dumps(data),
                         headers=header
                         )
