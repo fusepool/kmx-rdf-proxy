@@ -346,7 +346,7 @@ public class KMXProxy {
         for (Map.Entry pairs : rankedDocnames.entrySet()) {
             // key hold docid which is the url without < > surrounding it and
             // value is the score
-            GraphNode node = findGraphNode((String)pairs.getValue(), contentList2);
+            GraphNode node = findGraphNode((String)pairs.getKey(), contentList2);
             // strip its sioc content
             node.deleteProperties(SIOC.content);
             // add classification score
