@@ -110,6 +110,109 @@ public class KMXProxy {
      * No query params, a JSON object is expected in the body
      */
     @POST
+    @Path("landscape")
+    public String landscapePriviledged(@Context final UriInfo uriInfo, final String data) throws Exception {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
+                public String run() throws Exception {
+                    return landscape(uriInfo, data);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw e.getException();
+        }        
+    }    
+    
+    @POST
+    @Path("landscape_auth")
+    public String landscape(@Context final UriInfo uriInfo, final String data)
+            throws JSONException, IOException, Exception {
+        //TrailingSlash.enforcePresent(uriInfo);
+        log.info("landscape: " + data);
+        final String resourcePath = uriInfo.getAbsolutePath().toString();
+        final UriRef contentUri = new UriRef(resourcePath);
+        JSONObject root;
+        try {
+            root = new JSONObject(data);
+        } catch (org.codehaus.jettison.json.JSONException ex) {
+            String msg = ex.getMessage();
+            msg += "\n\n" + data.length() + " characters of body data received: " + data;
+            throw new Exception(msg);
+        }
+        
+        // get original search parameters from json object
+        final UriRef contentStoreUri = new UriRef(
+                root.getString("contentStoreUri"));
+        final UriRef contentStoreViewUri = new UriRef(
+                root.getString("contentStoreViewUri"));
+        final Integer items = root.has("items") ? root.getInt("items") : 500;
+        final Integer offset = root.has("offset") ? root.getInt("offset") : 0;
+        final Integer maxFacets = root.has("maxFacets") ? root.getInt("maxFacets") : 10;
+        final List<String> searchs = new ArrayList<String>();
+        if (root.has("searchs")) {
+            final JSONArray jsonArraySearchs = root.getJSONArray("searchs");
+            for (int i = 0; i < jsonArraySearchs.length(); i++) {
+                searchs.add(jsonArraySearchs.getString(i));
+            }
+        }
+        final List<UriRef> subjects = new ArrayList<UriRef>();
+        if (root.has("subjects")) {
+            final JSONArray jsonArraySubjects = root.getJSONArray("subjects");
+            for (int i = 0; i < jsonArraySubjects.length(); i++) {
+                subjects.add(new UriRef(jsonArraySubjects.getString(i)));
+            }
+        }
+        
+        final List<UriRef> types = new ArrayList<UriRef>();
+        if (root.has("types")) {
+            final JSONArray jsonTypes = root.getJSONArray("types");
+            for (int i = 0; i < jsonTypes.length(); i++) {
+                types.add(new UriRef(jsonTypes.getString(i)));
+            }
+        }
+        
+        log.info("getting search results from ECS");
+        
+        // redo search on ECS
+        GraphNode contentStoreView = ecs.getContentStoreView(
+                contentStoreUri,
+                contentStoreViewUri,
+                subjects,
+                types,
+                searchs,
+                items,
+                offset,
+                maxFacets,
+                true);
+        log.info("got search results from ECS");
+
+        // get results
+        Iterator<GraphNode> nodesIt = contentStoreView.getObjectNodes(ECS.contents);
+        if (!nodesIt.hasNext()) {
+            throw new Exception("Search on ECS yielded no results.");
+        }
+        GraphNode contentList = nodesIt.next();
+        // collect all results in the form of a LoL where every inner list [docname, doc_text]
+        final List<List<String>> docs = new ArrayList<List<String>>();
+        while (!contentList.getNode().equals(RDF.nil)) {
+            Map<String, String> doc = describeContent(contentList.getObjectNodes(RDF.first).next());
+            List<String> one_doc = new ArrayList<String>();
+            one_doc.add(doc.get("DOCNAME"));
+            one_doc.add(doc.get("doc_text"));
+            docs.add(one_doc);
+            
+            contentList = contentList.getObjectNodes(RDF.rest).next();
+        }
+        log.info("Sending docs to KMX" + docs.size());
+
+        return "Hello!";
+    }
+    
+    /**
+     * Returns a ranked (ordered) result graph 
+     * No query params, a JSON object is expected in the body
+     */
+    @POST
     @Path("ranking")
     public RdfViewable rankingPriviledged(@Context final UriInfo uriInfo, final String data) throws Exception {
         try {
