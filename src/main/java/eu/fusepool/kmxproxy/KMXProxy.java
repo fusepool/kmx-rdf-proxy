@@ -205,7 +205,7 @@ public class KMXProxy {
         }
         log.info("Sending docs to KMX" + docs.size());
 
-        return "Hello!";
+        return kmxClient.calcLandscapeCoords(docs).toString();
     }
     
     /**
