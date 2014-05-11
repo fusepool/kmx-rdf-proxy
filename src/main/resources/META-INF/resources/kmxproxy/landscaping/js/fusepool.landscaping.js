@@ -44,27 +44,86 @@ FusePool.Landscaping = {
      * @param selector
      * @author: Daniël van Adrichem <daniel@treparel.com>
      */
-    initialize: function (selector) {
+    initialize: function (selector, enyoApp) {
         var thisLandscaping = this;
+        thisLandscaping.enyoApp = enyoApp;
 
         // for debug purposes
-        $("#landscape-render-button").on("click", function () {
-            thisLandscaping.renderAll();
-        });
+//        $("#landscape-render-button").on("click", function () {
+//            thisLandscaping.renderAll();
+//        });
 
         thisLandscaping.$container = $(selector);
         thisLandscaping.$container.empty();
-        var b = $('<button>');
-        b.addClass('onyx-button');
-        b.text('Show Test Data');
-        thisLandscaping.$container.append(b);
-        b.on('click', function () {
-            thisLandscaping.$container.empty();
-            // jsondata is mock data found in jsondata.js
-            thisLandscaping.loadData(jsondata);
-            thisLandscaping.renderAll();
-        });
+        thisLandscaping.$container.append("<p>Please execute a search.</p>");
+//        var b = $('<button>');
+//        b.addClass('onyx-button');
+//        b.text('Request landscape');
+//        thisLandscaping.$container.append(b);
+//        b.on('click', function () {
+//            FusePool.Landscaping.doSearch();
+//        });
     }
+};
+
+FusePool.Landscaping.doSearch = function () {
+    var thisLandscaping = this;
+    thisLandscaping.$container.empty();
+//    jsondata is mock data found in jsondata.js
+//    thisLandscaping.loadData(jsondata);
+    FusePool.Landscaping.enyoApp.$.loader.show();
+    FusePool.Landscaping.requestLandscape(function(data) {
+        thisLandscaping.loadData(data);
+//        thisLandscaping.renderAll();
+        thisLandscaping.update = true;
+        FusePool.Landscaping.enyoApp.$.loader.hide();
+    });
+};
+
+FusePool.Landscaping.requestLandscape = function(onDataRecieved) {
+    var thisLandscaping = this;
+    var o = FusePool.Landscaping.enyoApp;
+    var postParams = {};
+
+    // Set the content store properties
+    postParams.contentStoreUri = CONSTANTS.SEARCH_URL;
+    postParams.contentStoreViewUri = CONSTANTS.SEARCH_URL;
+
+    // Set the search properties
+    postParams.searchs = [];
+    postParams.searchs.push(o.owner.searchWord);
+
+    // Set the checked facets and type facets
+    postParams.type = [];
+    postParams.subject = [];
+    for(var i=0;i<o.owner.checkedEntities.length;i++){
+        if(o.owner.checkedEntities[i].typeFacet){
+            postParams.type.push(o.owner.checkedEntities[i].id);
+        } else {
+            postParams.subject.push(o.owner.checkedEntities[i].id);
+        }
+    }
+    console.debug(postParams);
+    
+    var url = CONSTANTS.LANDSCAPE_URL;
+    var postBody = JSON.stringify(postParams);
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: postBody,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            onDataRecieved(data);
+            window.requestAnimationFrame(FusePool.Landscaping.renderAll);
+
+//            thisLandscaping.renderAll();
+        },
+        error: function() {
+            thisLandscaping.$container.empty();
+            thisLandscaping.$container.append("<p>No Data Recieved.</p>");
+        }
+    });
 };
 
 /**
@@ -103,6 +162,7 @@ FusePool.Landscaping.loadData = function (data) {
  */
 FusePool.Landscaping.doFocusDocument = function (document) {
     console.debug("picked", document);
+    FusePool.Landscaping.enyoApp.owner.openDoc(document.ID);
 };
 
 /**
@@ -165,7 +225,8 @@ FusePool.Landscaping.updatePanning = function (vec) {
         var scale = FusePool.Landscaping.cameraScale();
         this.camera.position.x -= dx * scale;
         this.camera.position.y -= dy * scale;
-        this.renderAll();
+        this.update = true;
+//        this.renderAll();
     }
     this.lastPanX = vec.x;
     this.lastPanY = vec.y;
@@ -278,41 +339,42 @@ FusePool.Landscaping.initMouseHandlers = function () {
         thisLandscaping.camera.top *= zoomFactor;
         thisLandscaping.camera.bottom *= zoomFactor;
         thisLandscaping.camera.updateProjectionMatrix();
-        thisLandscaping.renderAll();
+        thisLandscaping.update = true;
+//        thisLandscaping.renderAll();
     });
 };
 
 FusePool.Landscaping.renderAll = function () {
-    window.requestAnimationFrame(FusePool.Landscaping.renderAll);
     // only render when this bool is set
-    if (this.update || this.debugFullBlast) {
+    if (FusePool.Landscaping.update || FusePool.Landscaping.debugFullBlast) {
 //        console.info("Landscape redraw");
         // reset update bool
-        this.update = false;
+        FusePool.Landscaping.update = false;
 
         // update size of dots
-        this.dotMaterialConv.size = this.radius;
-        this.particleSystem.material = this.dotMaterialConv;
-        this.renderer.clear();
+        FusePool.Landscaping.dotMaterialConv.size = FusePool.Landscaping.radius;
+        FusePool.Landscaping.particleSystem.material = FusePool.Landscaping.dotMaterialConv;
+        FusePool.Landscaping.renderer.clear();
 
-        if (this.debugRenderParticlesOnly) {
-            this.renderer.render(this.scene, this.camera);
+        if (FusePool.Landscaping.debugRenderParticlesOnly) {
+            FusePool.Landscaping.renderer.render(FusePool.Landscaping.scene, FusePool.Landscaping.camera);
         } else {
             // firstly render the scene containing the dots particle system to
-            // the this.rtTexturePing render target and force clear (the true param)
-            this.renderer.render(this.scene, this.camera, this.rtTexturePing, true);
+            // the FusePool.Landscaping.rtTexturePing render target and force clear (the true param)
+            FusePool.Landscaping.renderer.render(FusePool.Landscaping.scene, FusePool.Landscaping.camera, FusePool.Landscaping.rtTexturePing, true);
             // next render the scene with a quad and shader having source rtTexturePing
-            // this applies horizontal convolution the output is rendered to
-            // this.rtTexturePong
-            this.renderer.render(this.scenePing, this.camera, this.rtTexturePong, true);
+            // FusePool.Landscaping applies horizontal convolution the output is rendered to
+            // FusePool.Landscaping.rtTexturePong
+            FusePool.Landscaping.renderer.render(FusePool.Landscaping.scenePing, FusePool.Landscaping.camera, FusePool.Landscaping.rtTexturePong, true);
             // finally render the scene consisting of a quad and its shader does
             // vertical convolution with rtTexturePong as source and no render
             // target, so output on canvas.
-            this.renderer.render(this.scenePong, this.camera);
-            this.particleSystem.material = this.dotMaterial;
-            this.renderer.render(this.scene, this.camera);
+            FusePool.Landscaping.renderer.render(FusePool.Landscaping.scenePong, FusePool.Landscaping.camera);
+            FusePool.Landscaping.particleSystem.material = FusePool.Landscaping.dotMaterial;
+            FusePool.Landscaping.renderer.render(FusePool.Landscaping.scene, FusePool.Landscaping.camera);
         }
     }
+    window.requestAnimationFrame(FusePool.Landscaping.renderAll);
 };
 
 /**
@@ -347,11 +409,12 @@ FusePool.Landscaping.initThree = function (width, height, data) {
 
     // texture filtering options
     // bi-linear filtering and no mip maps
-    var tex_options = {
-        magFilter: THREE.NearestFilter,
-        minFilter: THREE.NearestFilter,
-        generateMipmaps: false
-    };
+//    var tex_options = {
+//        magFilter: THREE.NearestFilter,
+//        minFilter: THREE.NearestFilter,
+//        generateMipmaps: false
+//    };
+    var tex_options = {};
 
     // round up to the nearest int divisable by 4
 //    var width4 = width + 4 - width%4;
